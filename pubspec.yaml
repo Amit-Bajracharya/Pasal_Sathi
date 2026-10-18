@@ -43,6 +43,10 @@ dependencies:
 
   auto_route_generator: ^10.6.0
   lucide_icons_flutter: ^4.0.0
+  supabase_auth: ^3.0.0-dev.9
+  supabase_flutter: ^2.16.0
+  flutter_dotenv: ^6.0.1
+
 
 
 dev_dependencies:
@@ -67,6 +71,10 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  assets:
+    - .env
+    - assets/fonts/
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
@@ -86,7 +94,7 @@ flutter:
   fonts:
     - family: Jakarta Sans
       fonts:
-     
+      
         - asset: assets/fonts/PlusJakartaSans-VariableFont_wght.ttf
         
   #   - family: Trajan Pro

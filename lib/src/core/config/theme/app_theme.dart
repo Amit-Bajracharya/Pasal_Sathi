@@ -24,7 +24,7 @@ class AppTheme {
     brightness: Brightness.dark,
     primarySwatch: AppColor.primarySwatch,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColor.primarySwatch,
+      seedColor: AppColor.primarySwatch.shade400,
       brightness: Brightness.dark,
     ),
     textTheme: AppTextStyles.textTheme,
