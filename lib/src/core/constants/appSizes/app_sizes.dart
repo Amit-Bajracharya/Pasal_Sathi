@@ -149,4 +149,6 @@ class AppRadius {
   static BorderRadius verticalRadius = const BorderRadius.vertical(
     top: Radius.circular(AppDimens.p16),
   );
+
+  static BorderRadius pill = BorderRadius.circular(100);
 }
