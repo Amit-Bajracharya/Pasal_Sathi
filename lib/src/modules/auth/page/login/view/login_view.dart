@@ -7,13 +7,13 @@ import 'package:pasal_sathi/src/modules/shared/presenter/view/appTextField/app_t
 
 class LoginView extends StatefulWidget {
   const LoginView({
-    required this.phoneController,
+    required this.emailController,
     required this.passwordController,
     this.onForgotPassword,
     super.key,
   });
 
-  final TextEditingController phoneController;
+  final TextEditingController emailController;
   final TextEditingController passwordController;
   final VoidCallback? onForgotPassword;
 
@@ -31,13 +31,18 @@ class _LoginViewState extends State<LoginView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         AppTextField(
-          labelText: 'Phone Number',
-          textEditingController: widget.phoneController,
-          hintText: '98XXXXXXXX',
-          keyboardType: TextInputType.phone,
+          labelText: 'Email',
+          textEditingController: widget.emailController,
+          hintText: 'you@example.com',
+          keyboardType: TextInputType.emailAddress,
           isMandatory: true,
-          validator: (v) =>
-              (v == null || v.trim().isEmpty) ? 'Enter phone number' : null,
+          validator: (v) {
+            if (v == null || v.trim().isEmpty) return 'Enter your email';
+            if (!v.contains('@') || !v.contains('.')) {
+              return 'Enter a valid email';
+            }
+            return null;
+          },
         ),
         AppTextField(
           labelText: 'Password',

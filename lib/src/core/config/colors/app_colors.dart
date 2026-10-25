@@ -10,6 +10,30 @@ class AppColor {
   static const Color yellow = Color.fromARGB(255, 255, 198, 41);
   static const Color linkTextLightTheme = Color(0xff295bff);
 
+  // Home dashboard tokens, from DESIGN.md (PasalSathi kirana-shop home
+  // dashboard). Prefixed to avoid clashing with the rest of AppColor while
+  // still living in one shared palette.
+  static const Color homeCanvas = Color(0xFFF4F6F5);
+  static const Color homeSurfaceContainer = Color(0xFFECEEED);
+
+  static const Color homeOnSurface = Color(0xFF18221D);
+  static const Color homeOnSurfaceMuted = Color(0xFF526059);
+  static const Color homeOutline = Color(0xFFD4DDD7);
+
+  static const Color homePrimary = Color(0xFF1B8755);
+  static const Color homePrimaryDark = Color(0xFF006C41);
+
+  static const Color homeWarning = Color(0xFFD97706);
+  static const Color homeWarningContainer = Color(0xFFFEF3C7);
+  static const Color homeOnWarningContainer = Color(0xFF92400E);
+
+  static const Color homeDanger = Color(0xFFDC2626);
+  static const Color homeDangerContainer = Color(0xFFFEE2E2);
+  static const Color homeOnDangerContainer = Color(0xFF991B1B);
+
+  static const Color homeSuccessContainer = Color(0xFFE3F5EC);
+  static const Color homeOnSuccessContainer = Color(0xFF146C43);
+
   static const MaterialColor neutralSwatch = MaterialColor(
     0xFF575C60,
     <int, Color>{

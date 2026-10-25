@@ -48,7 +48,7 @@ class AppScaffoldWidget extends ConsumerWidget {
                 ),
 
           body: body,
-        
+          bottomNavigationBar: bottomNavigationBar,
         );
       },
     );

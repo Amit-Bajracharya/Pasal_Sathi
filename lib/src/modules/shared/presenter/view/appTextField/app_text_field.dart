@@ -295,9 +295,7 @@ class _AppTextFieldState extends ConsumerState<AppTextField>
               isDense: widget.isDense,
               filled: widget.filled,
               fillColor: widget.filled
-                  ? (isLightMode
-                        ? AppColor.baseWhite
-                        : context.colorScheme.surface)
+                  ? context.colorScheme.surface
                   : Colors.transparent,
               contentPadding: widget.contentPadding,
               hintText: widget.hintText ?? widget.labelText,

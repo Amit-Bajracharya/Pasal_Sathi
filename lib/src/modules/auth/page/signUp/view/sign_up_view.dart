@@ -3,12 +3,16 @@ import 'package:pasal_sathi/src/modules/shared/presenter/view/appTextField/app_t
 
 class SignUpView extends StatefulWidget {
   const SignUpView({
-    required this.phoneController,
+    required this.shopNameController,
+    required this.nameController,
+    required this.emailController,
     required this.passwordController,
     super.key,
   });
 
-  final TextEditingController phoneController;
+  final TextEditingController shopNameController;
+  final TextEditingController nameController;
+  final TextEditingController emailController;
   final TextEditingController passwordController;
 
   @override
@@ -16,12 +20,10 @@ class SignUpView extends StatefulWidget {
 }
 
 class _SignUpViewState extends State<SignUpView> {
-  final _nameController = TextEditingController();
   final _confirmController = TextEditingController();
 
   @override
   void dispose() {
-    _nameController.dispose();
     _confirmController.dispose();
     super.dispose();
   }
@@ -33,8 +35,17 @@ class _SignUpViewState extends State<SignUpView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         AppTextField(
+          labelText: 'Shop Name',
+          textEditingController: widget.shopNameController,
+          hintText: 'Enter your shop name',
+          keyboardType: TextInputType.text,
+          isMandatory: true,
+          validator: (v) =>
+              (v == null || v.trim().isEmpty) ? 'Enter your shop name' : null,
+        ),
+        AppTextField(
           labelText: 'Full Name',
-          textEditingController: _nameController,
+          textEditingController: widget.nameController,
           hintText: 'Enter your name',
           keyboardType: TextInputType.name,
           isMandatory: true,
@@ -42,13 +53,18 @@ class _SignUpViewState extends State<SignUpView> {
               (v == null || v.trim().isEmpty) ? 'Enter your name' : null,
         ),
         AppTextField(
-          labelText: 'Phone Number',
-          textEditingController: widget.phoneController,
-          hintText: '98XXXXXXXX',
-          keyboardType: TextInputType.phone,
+          labelText: 'Email',
+          textEditingController: widget.emailController,
+          hintText: 'you@example.com',
+          keyboardType: TextInputType.emailAddress,
           isMandatory: true,
-          validator: (v) =>
-              (v == null || v.trim().isEmpty) ? 'Enter phone number' : null,
+          validator: (v) {
+            if (v == null || v.trim().isEmpty) return 'Enter your email';
+            if (!v.contains('@') || !v.contains('.')) {
+              return 'Enter a valid email';
+            }
+            return null;
+          },
         ),
         AppTextField(
           labelText: 'Password',
