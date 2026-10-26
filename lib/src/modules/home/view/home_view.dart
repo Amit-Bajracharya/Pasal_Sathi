@@ -10,6 +10,7 @@ import 'package:pasal_sathi/src/modules/auth/data/repository/auth_repository.dar
 import 'package:pasal_sathi/src/modules/home/page/utils/bottomNav/home_bottom_nav_bar.dart';
 import 'package:pasal_sathi/src/modules/home/page/utils/checkouts/checkout_tile.dart';
 import 'package:pasal_sathi/src/modules/home/page/utils/overviewCards/overview_stat_card.dart';
+import 'package:pasal_sathi/src/modules/products/view/products_view.dart';
 import 'package:pasal_sathi/src/modules/home/page/utils/quickActions/quick_actions_row.dart';
 import 'package:pasal_sathi/src/modules/home/page/utils/restock/restock_item_card.dart';
 import 'package:pasal_sathi/src/modules/home/page/utils/salesSummary/sales_summary_card.dart';
@@ -120,10 +121,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
             index: _navIndex,
             children: [
               _buildDashboard(ownerName: ownerName, shopName: shopName),
-              const ComingSoonView(
-                title: 'Products',
-                icon: Icons.inventory_2_outlined,
-              ),
+              const ProductsView(),
               const ComingSoonView(
                 title: 'Sales',
                 icon: Icons.receipt_long_outlined,
