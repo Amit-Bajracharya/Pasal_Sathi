@@ -10,6 +10,7 @@ enum ProductStockStatus { normal, lowStock, outOfStock }
 @freezed
 abstract class Product with _$Product {
   const factory Product({
+    required String id,
     required String name,
     required String category,
     required String unitLabel,
@@ -48,6 +49,7 @@ abstract class Product with _$Product {
         : ProductStockStatus.normal;
 
     return Product(
+      id: row['id'] as String,
       name: row['name'] as String,
       category: (row['category'] as String?) ?? 'Uncategorized',
       unitLabel: unit.label,

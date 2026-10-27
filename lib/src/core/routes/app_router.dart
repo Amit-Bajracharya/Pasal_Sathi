@@ -14,5 +14,6 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: AuthRoute.page, initial: true, guards: [guestGuard]),
     AutoRoute(page: HomeRoute.page, guards: [authGuard]),
     AutoRoute(page: AddProductRoute.page, guards: [authGuard]),
+    AutoRoute(page: AddSaleRoute.page, guards: [authGuard]),
   ];
 }

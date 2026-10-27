@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Product {
 
- String get name; String get category; String get unitLabel; double get sellingPrice; double get costPrice; int get stockQuantity;/// e.g. "80 packets in stock" or "Only 4 pouches left!".
+ String get id; String get name; String get category; String get unitLabel; double get sellingPrice; double get costPrice; int get stockQuantity;/// e.g. "80 packets in stock" or "Only 4 pouches left!".
  String get stockLabel; ProductStockStatus get status;/// Secondary tag shown next to the category chip, e.g. "Barcode: 890123"
 /// or "Fast Mover" — purely informational, not status-related. `null`
 /// when there's nothing to show (the real data has no analog yet).
@@ -31,20 +31,20 @@ $ProductCopyWith<Product> get copyWith => _$ProductCopyWithImpl<Product>(this as
 @override
 bool operator ==(Object other) {
   final _this = this as Product;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Product&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.category, _this.category) || other.category == _this.category)&&(identical(other.unitLabel, _this.unitLabel) || other.unitLabel == _this.unitLabel)&&(identical(other.sellingPrice, _this.sellingPrice) || other.sellingPrice == _this.sellingPrice)&&(identical(other.costPrice, _this.costPrice) || other.costPrice == _this.costPrice)&&(identical(other.stockQuantity, _this.stockQuantity) || other.stockQuantity == _this.stockQuantity)&&(identical(other.stockLabel, _this.stockLabel) || other.stockLabel == _this.stockLabel)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.tagLabel, _this.tagLabel) || other.tagLabel == _this.tagLabel));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Product&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.category, _this.category) || other.category == _this.category)&&(identical(other.unitLabel, _this.unitLabel) || other.unitLabel == _this.unitLabel)&&(identical(other.sellingPrice, _this.sellingPrice) || other.sellingPrice == _this.sellingPrice)&&(identical(other.costPrice, _this.costPrice) || other.costPrice == _this.costPrice)&&(identical(other.stockQuantity, _this.stockQuantity) || other.stockQuantity == _this.stockQuantity)&&(identical(other.stockLabel, _this.stockLabel) || other.stockLabel == _this.stockLabel)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.tagLabel, _this.tagLabel) || other.tagLabel == _this.tagLabel));
 }
 
 
 @override
 int get hashCode {
   final _this = this as Product;
-  return Object.hash(runtimeType,_this.name,_this.category,_this.unitLabel,_this.sellingPrice,_this.costPrice,_this.stockQuantity,_this.stockLabel,_this.status,_this.tagLabel);
+  return Object.hash(runtimeType,_this.id,_this.name,_this.category,_this.unitLabel,_this.sellingPrice,_this.costPrice,_this.stockQuantity,_this.stockLabel,_this.status,_this.tagLabel);
 }
 
 @override
 String toString() {
   final _this = this as Product;
-  return 'Product(name: ${_this.name}, category: ${_this.category}, unitLabel: ${_this.unitLabel}, sellingPrice: ${_this.sellingPrice}, costPrice: ${_this.costPrice}, stockQuantity: ${_this.stockQuantity}, stockLabel: ${_this.stockLabel}, status: ${_this.status}, tagLabel: ${_this.tagLabel})';
+  return 'Product(id: ${_this.id}, name: ${_this.name}, category: ${_this.category}, unitLabel: ${_this.unitLabel}, sellingPrice: ${_this.sellingPrice}, costPrice: ${_this.costPrice}, stockQuantity: ${_this.stockQuantity}, stockLabel: ${_this.stockLabel}, status: ${_this.status}, tagLabel: ${_this.tagLabel})';
 }
 
 
@@ -55,7 +55,7 @@ abstract mixin class $ProductCopyWith<$Res>  {
   factory $ProductCopyWith(Product value, $Res Function(Product) _then) = _$ProductCopyWithImpl;
 @useResult
 $Res call({
- String name, String category, String unitLabel, double sellingPrice, double costPrice, int stockQuantity, String stockLabel, ProductStockStatus status, String? tagLabel
+ String id, String name, String category, String unitLabel, double sellingPrice, double costPrice, int stockQuantity, String stockLabel, ProductStockStatus status, String? tagLabel
 });
 
 
@@ -72,9 +72,10 @@ class _$ProductCopyWithImpl<$Res>
 
 /// Create a copy of Product
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? category = null,Object? unitLabel = null,Object? sellingPrice = null,Object? costPrice = null,Object? stockQuantity = null,Object? stockLabel = null,Object? status = null,Object? tagLabel = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? category = null,Object? unitLabel = null,Object? sellingPrice = null,Object? costPrice = null,Object? stockQuantity = null,Object? stockLabel = null,Object? status = null,Object? tagLabel = freezed,}) {
   return _then(Product(
-name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String,unitLabel: null == unitLabel ? _self.unitLabel : unitLabel // ignore: cast_nullable_to_non_nullable
 as String,sellingPrice: null == sellingPrice ? _self.sellingPrice : sellingPrice // ignore: cast_nullable_to_non_nullable
@@ -168,10 +169,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String category,  String unitLabel,  double sellingPrice,  double costPrice,  int stockQuantity,  String stockLabel,  ProductStockStatus status,  String? tagLabel)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String category,  String unitLabel,  double sellingPrice,  double costPrice,  int stockQuantity,  String stockLabel,  ProductStockStatus status,  String? tagLabel)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Product() when $default != null:
-return $default(_that.name,_that.category,_that.unitLabel,_that.sellingPrice,_that.costPrice,_that.stockQuantity,_that.stockLabel,_that.status,_that.tagLabel);case _:
+return $default(_that.id,_that.name,_that.category,_that.unitLabel,_that.sellingPrice,_that.costPrice,_that.stockQuantity,_that.stockLabel,_that.status,_that.tagLabel);case _:
   return orElse();
 
 }
@@ -189,10 +190,10 @@ return $default(_that.name,_that.category,_that.unitLabel,_that.sellingPrice,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String category,  String unitLabel,  double sellingPrice,  double costPrice,  int stockQuantity,  String stockLabel,  ProductStockStatus status,  String? tagLabel)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String category,  String unitLabel,  double sellingPrice,  double costPrice,  int stockQuantity,  String stockLabel,  ProductStockStatus status,  String? tagLabel)  $default,) {final _that = this;
 switch (_that) {
 case _Product():
-return $default(_that.name,_that.category,_that.unitLabel,_that.sellingPrice,_that.costPrice,_that.stockQuantity,_that.stockLabel,_that.status,_that.tagLabel);case _:
+return $default(_that.id,_that.name,_that.category,_that.unitLabel,_that.sellingPrice,_that.costPrice,_that.stockQuantity,_that.stockLabel,_that.status,_that.tagLabel);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -209,10 +210,10 @@ return $default(_that.name,_that.category,_that.unitLabel,_that.sellingPrice,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String category,  String unitLabel,  double sellingPrice,  double costPrice,  int stockQuantity,  String stockLabel,  ProductStockStatus status,  String? tagLabel)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String category,  String unitLabel,  double sellingPrice,  double costPrice,  int stockQuantity,  String stockLabel,  ProductStockStatus status,  String? tagLabel)?  $default,) {final _that = this;
 switch (_that) {
 case _Product() when $default != null:
-return $default(_that.name,_that.category,_that.unitLabel,_that.sellingPrice,_that.costPrice,_that.stockQuantity,_that.stockLabel,_that.status,_that.tagLabel);case _:
+return $default(_that.id,_that.name,_that.category,_that.unitLabel,_that.sellingPrice,_that.costPrice,_that.stockQuantity,_that.stockLabel,_that.status,_that.tagLabel);case _:
   return null;
 
 }
@@ -224,9 +225,10 @@ return $default(_that.name,_that.category,_that.unitLabel,_that.sellingPrice,_th
 
 
 class _Product extends Product {
-  const _Product({required this.name, required this.category, required this.unitLabel, required this.sellingPrice, required this.costPrice, required this.stockQuantity, required this.stockLabel, required this.status, this.tagLabel}): super._();
+  const _Product({required this.id, required this.name, required this.category, required this.unitLabel, required this.sellingPrice, required this.costPrice, required this.stockQuantity, required this.stockLabel, required this.status, this.tagLabel}): super._();
   
 
+@override final  String id;
 @override final  String name;
 @override final  String category;
 @override final  String unitLabel;
@@ -251,18 +253,18 @@ _$ProductCopyWith<_Product> get copyWith => __$ProductCopyWithImpl<_Product>(thi
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Product&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.unitLabel, unitLabel) || other.unitLabel == unitLabel)&&(identical(other.sellingPrice, sellingPrice) || other.sellingPrice == sellingPrice)&&(identical(other.costPrice, costPrice) || other.costPrice == costPrice)&&(identical(other.stockQuantity, stockQuantity) || other.stockQuantity == stockQuantity)&&(identical(other.stockLabel, stockLabel) || other.stockLabel == stockLabel)&&(identical(other.status, status) || other.status == status)&&(identical(other.tagLabel, tagLabel) || other.tagLabel == tagLabel));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _Product&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.unitLabel, unitLabel) || other.unitLabel == unitLabel)&&(identical(other.sellingPrice, sellingPrice) || other.sellingPrice == sellingPrice)&&(identical(other.costPrice, costPrice) || other.costPrice == costPrice)&&(identical(other.stockQuantity, stockQuantity) || other.stockQuantity == stockQuantity)&&(identical(other.stockLabel, stockLabel) || other.stockLabel == stockLabel)&&(identical(other.status, status) || other.status == status)&&(identical(other.tagLabel, tagLabel) || other.tagLabel == tagLabel));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,name,category,unitLabel,sellingPrice,costPrice,stockQuantity,stockLabel,status,tagLabel);
+    return Object.hash(runtimeType,id,name,category,unitLabel,sellingPrice,costPrice,stockQuantity,stockLabel,status,tagLabel);
 }
 
 @override
 String toString() {
-    return 'Product(name: $name, category: $category, unitLabel: $unitLabel, sellingPrice: $sellingPrice, costPrice: $costPrice, stockQuantity: $stockQuantity, stockLabel: $stockLabel, status: $status, tagLabel: $tagLabel)';
+    return 'Product(id: $id, name: $name, category: $category, unitLabel: $unitLabel, sellingPrice: $sellingPrice, costPrice: $costPrice, stockQuantity: $stockQuantity, stockLabel: $stockLabel, status: $status, tagLabel: $tagLabel)';
 }
 
 
@@ -273,7 +275,7 @@ abstract mixin class _$ProductCopyWith<$Res> implements $ProductCopyWith<$Res> {
   factory _$ProductCopyWith(_Product value, $Res Function(_Product) _then) = __$ProductCopyWithImpl;
 @override @useResult
 $Res call({
- String name, String category, String unitLabel, double sellingPrice, double costPrice, int stockQuantity, String stockLabel, ProductStockStatus status, String? tagLabel
+ String id, String name, String category, String unitLabel, double sellingPrice, double costPrice, int stockQuantity, String stockLabel, ProductStockStatus status, String? tagLabel
 });
 
 
@@ -290,9 +292,10 @@ class __$ProductCopyWithImpl<$Res>
 
 /// Create a copy of Product
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? category = null,Object? unitLabel = null,Object? sellingPrice = null,Object? costPrice = null,Object? stockQuantity = null,Object? stockLabel = null,Object? status = null,Object? tagLabel = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? category = null,Object? unitLabel = null,Object? sellingPrice = null,Object? costPrice = null,Object? stockQuantity = null,Object? stockLabel = null,Object? status = null,Object? tagLabel = freezed,}) {
   return _then(_Product(
-name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String,unitLabel: null == unitLabel ? _self.unitLabel : unitLabel // ignore: cast_nullable_to_non_nullable
 as String,sellingPrice: null == sellingPrice ? _self.sellingPrice : sellingPrice // ignore: cast_nullable_to_non_nullable
