@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pasal_sathi/src/core/config/textTheme/text_theme.dart';
 import 'package:pasal_sathi/src/core/constants/appSizes/app_sizes.dart';
 import 'package:pasal_sathi/src/core/config/colors/app_colors.dart';
 import 'package:pasal_sathi/src/modules/shared/presenter/view/appChip/app_pill_chip.dart';
 import 'package:pasal_sathi/src/modules/shared/presenter/view/appText/app_text.dart';
 
+part 'checkout_tile.freezed.dart';
+
 enum PaymentMethod { fonepay, cash, khata }
 
 /// Data for a single row in the "Recent Checkouts" list.
-class CheckoutRecord {
-  const CheckoutRecord({
-    required this.billNumber,
-    required this.method,
-    required this.customerLabel,
-    required this.amountLabel,
-    required this.timeAgoLabel,
-  });
-
-  final String billNumber;
-  final PaymentMethod method;
-  final String customerLabel;
-  final String amountLabel;
-  final String timeAgoLabel;
+@freezed
+abstract class CheckoutRecord with _$CheckoutRecord {
+  const factory CheckoutRecord({
+    required String billNumber,
+    required PaymentMethod method,
+    required String customerLabel,
+    required String amountLabel,
+    required String timeAgoLabel,
+  }) = _CheckoutRecord;
 }
 
 class CheckoutTile extends StatelessWidget {

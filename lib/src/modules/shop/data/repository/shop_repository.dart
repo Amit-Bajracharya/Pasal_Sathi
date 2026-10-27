@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 part 'shop_repository.g.dart';
 
 /// Wraps Supabase calls for the `shops` table (see
-/// `supabase/migrations/20261024000000_create_shops.sql`).
+/// `supabase/migrations/20261026020000_initial_schema.sql`).
 ///
 /// One row per owner, enforced by a unique constraint on `owner_id` and
 /// row-level security policies that scope every read/write to `auth.uid()`.

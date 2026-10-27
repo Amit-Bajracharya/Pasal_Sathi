@@ -5,7 +5,8 @@ import 'package:pasal_sathi/src/core/config/extensions/extensions.dart';
 import 'package:pasal_sathi/src/core/config/textTheme/text_theme.dart';
 import 'package:pasal_sathi/src/core/constants/appSizes/app_sizes.dart';
 import 'package:pasal_sathi/src/core/routes/app_router.gr.dart';
-import 'package:pasal_sathi/src/modules/products/model/product.dart';
+import 'package:pasal_sathi/src/modules/products/data/repository/product_repository.dart';
+import 'package:pasal_sathi/src/modules/products/model/product_model.dart';
 import 'package:pasal_sathi/src/modules/products/view/widgets/inventory_status_strip.dart';
 import 'package:pasal_sathi/src/modules/products/view/widgets/product_card.dart';
 import 'package:pasal_sathi/src/modules/products/view/widgets/product_filter_chip.dart';
@@ -25,100 +26,98 @@ class ProductsView extends ConsumerStatefulWidget {
 class _ProductsViewState extends ConsumerState<ProductsView> {
   final _searchController = TextEditingController();
   int _selectedFilter = 0;
+  _ProductSort _sort = _ProductSort.newest;
 
-  static const _filters = [
-    ('All (142)', null),
-    ('Low Stock (6)', true),
-    ('Grains & Rice (28)', false),
-    ('Oils & Ghee (14)', false),
-    ('Snacks & Noodles (35)', false),
-    ('Dairy (12)', false),
-    ('Spices (22)', false),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
 
-  static const _products = [
-    Product(
-      name: 'Wai Wai Quick Noodles 75g',
-      category: 'Snacks',
-      unitLabel: 'Packet',
-      tagLabel: 'Barcode: 890123',
-      sellingPrice: 25,
-      costPrice: 20,
-      stockLabel: '80 packets in stock',
-      status: ProductStockStatus.normal,
-    ),
-    Product(
-      name: 'DDC Fresh Milk 500ml',
-      category: 'Dairy',
-      unitLabel: 'Pouch',
-      tagLabel: 'Only 4 pouches left!',
-      sellingPrice: 50,
-      costPrice: 45,
-      stockLabel: 'Only 4 pouches left!',
-      status: ProductStockStatus.lowStock,
-    ),
-    Product(
-      name: 'Basmati Special Rice 5kg',
-      category: 'Grains',
-      unitLabel: 'Bag',
-      tagLabel: 'Fast Mover',
-      sellingPrice: 720,
-      costPrice: 640,
-      stockLabel: '32 bags in stock',
-      status: ProductStockStatus.normal,
-    ),
-    Product(
-      name: 'Fortune Sunflower Oil 1L',
-      category: 'Oil',
-      unitLabel: 'Pouch',
-      tagLabel: 'Pouch 1L',
-      sellingPrice: 265,
-      costPrice: 240,
-      stockLabel: '19 pouches in stock',
-      status: ProductStockStatus.normal,
-    ),
-    Product(
-      name: 'Everest Garam Masala 100g',
-      category: 'Spices',
-      unitLabel: 'Box',
-      tagLabel: 'Out of Stock',
-      sellingPrice: 115,
-      costPrice: 95,
-      stockLabel: '0 units available',
-      status: ProductStockStatus.outOfStock,
-    ),
-    Product(
-      name: 'Aashirvaad Shudh Chakki Atta 10kg',
-      category: 'Flour',
-      unitLabel: 'Bag',
-      tagLabel: 'Heavy Stock',
-      sellingPrice: 840,
-      costPrice: 750,
-      stockLabel: '14 bags in stock',
-      status: ProductStockStatus.normal,
-    ),
-    Product(
-      name: 'Aayo Nun / Salt 1kg',
-      category: 'Grocery',
-      unitLabel: 'Packet',
-      tagLabel: 'Essential',
-      sellingPrice: 26,
-      costPrice: 22,
-      stockLabel: '112 packets in stock',
-      status: ProductStockStatus.normal,
-    ),
-  ];
+  void _onSearchChanged() => setState(() {});
 
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _addProduct() async {
+    await context.pushRoute(const AddProductRoute());
+    ref.invalidate(ownedProductsProvider);
+  }
+
+  Future<void> _showSortSheet() async {
+    final selected = await showModalBottomSheet<_ProductSort>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: RadioGroup<_ProductSort>(
+          groupValue: _sort,
+          onChanged: (v) => Navigator.of(sheetContext).pop(v),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final sort in _ProductSort.values)
+                RadioListTile<_ProductSort>(
+                  title: AppText(sort.label),
+                  value: sort,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (selected != null) setState(() => _sort = selected);
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
     final shopName = ref.watch(currentShopNameProvider).value ?? 'My Shop';
+    final productsAsync = ref.watch(ownedProductsProvider);
+    final products = productsAsync.value ?? const <Product>[];
+    final lowStockCount = products
+        .where((p) => p.status == ProductStockStatus.lowStock)
+        .length;
+    final needsRestockCount = products
+        .where((p) => p.status != ProductStockStatus.normal)
+        .length;
+    final inStockCount = products.where((p) => p.stockQuantity > 0).length;
+    final healthyPercent = products.isEmpty
+        ? 0
+        : (inStockCount / products.length * 100).round();
+    final totalStockValue = products.fold<double>(
+      0,
+      (sum, p) => sum + p.sellingPrice * p.stockQuantity,
+    );
+
+    final categories = {for (final p in products) p.category}.toList()..sort();
+    final filters = [
+      ('All (${products.length})', null, false),
+      ('Low Stock ($lowStockCount)', null, true),
+      for (final c in categories)
+        ('$c (${products.where((p) => p.category == c).length})', c, false),
+    ];
+    final safeFilterIndex = _selectedFilter.clamp(0, filters.length - 1);
+
+    final query = _searchController.text.trim().toLowerCase();
+    var visibleProducts = products.where((p) {
+      if (query.isNotEmpty &&
+          !p.name.toLowerCase().contains(query) &&
+          !p.category.toLowerCase().contains(query)) {
+        return false;
+      }
+      if (safeFilterIndex == 1) {
+        return p.status == ProductStockStatus.lowStock;
+      }
+      if (safeFilterIndex >= 2) {
+        return p.category == filters[safeFilterIndex].$2;
+      }
+      return true;
+    }).toList();
+    visibleProducts = _sortProducts(visibleProducts, _sort);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -128,7 +127,11 @@ class _ProductsViewState extends ConsumerState<ProductsView> {
         AppDimens.p32,
       ),
       children: [
-        _Header(shopName: shopName, productCount: _products.length),
+        _Header(
+          shopName: shopName,
+          productCount: products.length,
+          onAddProductTap: _addProduct,
+        ),
         AppSpacing.h20,
         AppTextField(
           textEditingController: _searchController,
@@ -149,38 +152,38 @@ class _ProductsViewState extends ConsumerState<ProductsView> {
           height: 36,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: _filters.length,
+            itemCount: filters.length,
             separatorBuilder: (_, _) => AppSpacing.w8,
             itemBuilder: (context, index) {
-              final (label, isLowStock) = _filters[index];
+              final (label, _, isLowStock) = filters[index];
               return ProductFilterChip(
                 label: label,
-                selected: _selectedFilter == index,
-                dotColor: isLowStock == true ? colorScheme.tertiary : null,
+                selected: safeFilterIndex == index,
+                dotColor: isLowStock ? colorScheme.tertiary : null,
                 onTap: () => setState(() => _selectedFilter = index),
               );
             },
           ),
         ),
         AppSpacing.h16,
-        const InventoryStatusStrip(
-          totalValueLabel: 'NPR 3.45L',
-          totalValueTrendLabel: '+4.2% mo',
-          inStockLabel: '136 Items',
-          inStockCaption: '95% Healthy',
-          restockLabel: '6 Items',
+        InventoryStatusStrip(
+          totalValueLabel: 'NPR ${totalStockValue.toStringAsFixed(0)}',
+          totalValueTrendLabel: '${products.length} products',
+          inStockLabel: '$inStockCount Items',
+          inStockCaption: '$healthyPercent% Healthy',
+          restockLabel: '$needsRestockCount Items',
         ),
         AppSpacing.h20,
         Row(
           children: [
             AppText(
-              'SORTED BY POPULARITY',
+              'SORTED BY ${_sort.label.toUpperCase()}',
               style: AppTextStyles.label,
               color: colorScheme.outline,
             ),
             const Spacer(),
             InkWell(
-              onTap: () {},
+              onTap: _showSortSheet,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -202,25 +205,75 @@ class _ProductsViewState extends ConsumerState<ProductsView> {
           ],
         ),
         AppSpacing.h12,
-        for (final product in _products) ...[
-          ProductCard(
-            product: product,
-            onEdit: () {},
-            onAddStock: () {},
-            onMore: () {},
-          ),
-          AppSpacing.h12,
-        ],
+        if (productsAsync.isLoading && products.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: AppDimens.p32),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (productsAsync.hasError)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppDimens.p24),
+            child: Column(
+              children: [
+                AppText(
+                  'Couldn\'t load products.',
+                  style: AppTextStyles.body,
+                  color: colorScheme.error,
+                  textAlign: TextAlign.center,
+                ),
+                AppSpacing.h8,
+                TextButton(
+                  onPressed: () => ref.invalidate(ownedProductsProvider),
+                  child: const AppText('Retry'),
+                ),
+              ],
+            ),
+          )
+        else if (products.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppDimens.p32),
+            child: AppText(
+              'No products yet. Tap "Add Product" to get started.',
+              style: AppTextStyles.body,
+              color: colorScheme.outline,
+              textAlign: TextAlign.center,
+            ),
+          )
+        else if (visibleProducts.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppDimens.p32),
+            child: AppText(
+              'No products match your search or filter.',
+              style: AppTextStyles.body,
+              color: colorScheme.outline,
+              textAlign: TextAlign.center,
+            ),
+          )
+        else
+          for (final product in visibleProducts) ...[
+            ProductCard(
+              product: product,
+              onEdit: () {},
+              onAddStock: () {},
+              onMore: () {},
+            ),
+            AppSpacing.h12,
+          ],
       ],
     );
   }
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.shopName, required this.productCount});
+  const _Header({
+    required this.shopName,
+    required this.productCount,
+    required this.onAddProductTap,
+  });
 
   final String shopName;
   final int productCount;
+  final VoidCallback onAddProductTap;
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +308,7 @@ class _Header extends StatelessWidget {
                 children: [
                   AppText(
                     'Products ',
-                    style: AppTextStyles.headline,
+                    style: AppTextStyles.bodySmall,
                     color: colorScheme.onSurface,
                   ),
                   AppText(
@@ -268,19 +321,13 @@ class _Header extends StatelessWidget {
             ],
           ),
         ),
-        IconButton(
-          onPressed: () {},
-          icon: Icon(
-            Icons.qr_code_scanner_rounded,
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
+
         Material(
           color: colorScheme.primaryContainer,
           borderRadius: AppRadius.pill,
           child: InkWell(
             borderRadius: AppRadius.pill,
-            onTap: () => context.pushRoute(const AddProductRoute()),
+            onTap: onAddProductTap,
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppDimens.p14,
@@ -309,4 +356,35 @@ class _Header extends StatelessWidget {
       ],
     );
   }
+}
+
+enum _ProductSort {
+  newest('Newest'),
+  nameAsc('Name (A-Z)'),
+  priceHighToLow('Price: High to Low'),
+  priceLowToHigh('Price: Low to High'),
+  stockLowToHigh('Stock: Low to High');
+
+  const _ProductSort(this.label);
+
+  final String label;
+}
+
+List<Product> _sortProducts(List<Product> items, _ProductSort sort) {
+  final sorted = [...items];
+  switch (sort) {
+    case _ProductSort.newest:
+      break;
+    case _ProductSort.nameAsc:
+      sorted.sort(
+        (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+      );
+    case _ProductSort.priceHighToLow:
+      sorted.sort((a, b) => b.sellingPrice.compareTo(a.sellingPrice));
+    case _ProductSort.priceLowToHigh:
+      sorted.sort((a, b) => a.sellingPrice.compareTo(b.sellingPrice));
+    case _ProductSort.stockLowToHigh:
+      sorted.sort((a, b) => a.stockQuantity.compareTo(b.stockQuantity));
+  }
+  return sorted;
 }

@@ -52,6 +52,7 @@ class AppDropdownField<T> extends StatelessWidget {
         AppSpacing.h6,
         DropdownButtonFormField<T>(
           initialValue: value,
+          itemHeight: null,
           icon: Icon(Icons.unfold_more_rounded, color: colorScheme.outline),
           style: AppTextStyles.body.copyWith(color: colorScheme.onSurface),
           dropdownColor: colorScheme.surface,
@@ -80,7 +81,13 @@ class AppDropdownField<T> extends StatelessWidget {
             for (final item in items)
               DropdownMenuItem(
                 value: item,
-                child: AppText(itemLabelBuilder(item)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppDimens.p4),
+                  child: AppText(
+                    itemLabelBuilder(item),
+                    style: AppTextStyles.label,
+                  ),
+                ),
               ),
           ],
           onChanged: onChanged,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pasal_sathi/src/core/config/extensions/extensions.dart';
 import 'package:pasal_sathi/src/core/config/textTheme/text_theme.dart';
 import 'package:pasal_sathi/src/core/constants/appSizes/app_sizes.dart';
@@ -7,19 +8,17 @@ import 'package:pasal_sathi/src/core/config/colors/app_colors.dart';
 import 'package:pasal_sathi/src/modules/shared/presenter/view/appChip/app_pill_chip.dart';
 import 'package:pasal_sathi/src/modules/shared/presenter/view/appText/app_text.dart';
 
-/// Data for a single low-stock product row.
-class RestockItem {
-  const RestockItem({
-    required this.name,
-    required this.quantityLabel,
-    required this.caption,
-    this.isUrgent = false,
-  });
+part 'restock_item_card.freezed.dart';
 
-  final String name;
-  final String quantityLabel;
-  final String caption;
-  final bool isUrgent;
+/// Data for a single low-stock product row.
+@freezed
+abstract class RestockItem with _$RestockItem {
+  const factory RestockItem({
+    required String name,
+    required String quantityLabel,
+    required String caption,
+    @Default(false) bool isUrgent,
+  }) = _RestockItem;
 }
 
 /// A left-accented card for one item needing restock, with a quantity

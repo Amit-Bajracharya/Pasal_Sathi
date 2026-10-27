@@ -6,7 +6,7 @@ class AppPrimaryButton extends StatelessWidget {
   const AppPrimaryButton({
     required this.label,
     required this.onPressed,
-    this.height = 54,
+    this.height = 48,
     this.isLoading = false,
     super.key,
   });

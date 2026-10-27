@@ -22,7 +22,7 @@ class StockStepper extends StatelessWidget {
     final colorScheme = context.colorScheme;
 
     return Container(
-      height: 52,
+      height: 50,
       padding: const EdgeInsets.all(AppDimens.p4),
       decoration: BoxDecoration(
         color: colorScheme.surface,

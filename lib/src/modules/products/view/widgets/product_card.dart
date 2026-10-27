@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pasal_sathi/src/core/config/extensions/extensions.dart';
 import 'package:pasal_sathi/src/core/config/textTheme/text_theme.dart';
 import 'package:pasal_sathi/src/core/constants/appSizes/app_sizes.dart';
-import 'package:pasal_sathi/src/modules/products/model/product.dart';
+import 'package:pasal_sathi/src/modules/products/model/product_model.dart';
 import 'package:pasal_sathi/src/modules/shared/presenter/view/appCard/app_surface_card.dart';
 import 'package:pasal_sathi/src/modules/shared/presenter/view/appChip/app_pill_chip.dart';
 import 'package:pasal_sathi/src/modules/shared/presenter/view/appText/app_text.dart';
@@ -54,13 +54,7 @@ class ProductCard extends StatelessWidget {
                           backgroundColor: colorScheme.surfaceContainerHighest,
                           foregroundColor: colorScheme.onSurfaceVariant,
                         ),
-                        if (product.status == ProductStockStatus.normal)
-                          AppText(
-                            product.tagLabel,
-                            style: AppTextStyles.label,
-                            color: colorScheme.outline,
-                          )
-                        else
+                        if (product.status != ProductStockStatus.normal)
                           AppPillChip(
                             label: product.status == ProductStockStatus.lowStock
                                 ? 'Low Stock'
@@ -76,6 +70,13 @@ class ProductCard extends StatelessWidget {
                                 product.status == ProductStockStatus.lowStock
                                 ? colorScheme.onTertiaryContainer
                                 : colorScheme.onErrorContainer,
+                          )
+                        else if (product.tagLabel != null &&
+                            product.tagLabel!.isNotEmpty)
+                          AppText(
+                            product.tagLabel!,
+                            style: AppTextStyles.label,
+                            color: colorScheme.outline,
                           ),
                       ],
                     ),

@@ -60,7 +60,7 @@ class _UnitChip extends StatelessWidget {
         borderRadius: AppRadius.medium,
         onTap: onTap,
         child: Container(
-          height: 48,
+          height: 38,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: AppRadius.medium,

@@ -287,7 +287,7 @@ class _AppTextFieldState extends ConsumerState<AppTextField>
               ...?widget.inputFormatters,
             ],
             obscureText: effectiveIsPassword && isObscured,
-            style: (widget.style ?? AppTextStyles.body).copyWith(
+            style: (widget.style ?? AppTextStyles.bodySmall).copyWith(
               fontWeight: FontWeight.w400,
               color: isLightMode ? AppColor.baseBlack : AppColor.baseWhite,
             ),
@@ -299,11 +299,11 @@ class _AppTextFieldState extends ConsumerState<AppTextField>
                   : Colors.transparent,
               contentPadding: widget.contentPadding,
               hintText: widget.hintText ?? widget.labelText,
-              hintStyle: (widget.style ?? AppTextStyles.body).copyWith(
+              hintStyle: (widget.style ?? AppTextStyles.label).copyWith(
                 color: context.colorScheme.onSurface.withValues(alpha: 0.5),
               ),
               prefixText: showPrefix ? widget.prefixText : null,
-              prefixStyle: (widget.style ?? AppTextStyles.body).copyWith(
+              prefixStyle: (widget.style ?? AppTextStyles.bodySmall).copyWith(
                 fontWeight: FontWeight.w400,
                 color: isLightMode ? AppColor.baseBlack : AppColor.baseWhite,
               ),

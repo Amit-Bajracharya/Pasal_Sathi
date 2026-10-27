@@ -59,7 +59,7 @@ class AppText extends StatelessWidget {
     final theme = Theme.of(context);
 
 
-    final base = style ?? AppTextStyles.body;
+    final base = style ?? AppTextStyles.bodySmall;
 
     // Merge while allowing explicit overrides
     final effectiveStyle = base.copyWith(
