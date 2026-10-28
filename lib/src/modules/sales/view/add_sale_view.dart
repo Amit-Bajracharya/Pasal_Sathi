@@ -49,8 +49,17 @@ class _AddSaleViewState extends ConsumerState<AddSaleView> {
     });
   }
 
+  /// The product the sale will be recorded against: whatever the user
+  /// explicitly picked, or the dropdown's visible default (the first
+  /// product) if they never touched it.
+  Product? _effectiveProduct() {
+    if (_selectedProduct != null) return _selectedProduct;
+    final products = ref.read(ownedProductsProvider).value ?? const [];
+    return products.isNotEmpty ? products.first : null;
+  }
+
   Future<void> _save({required bool addAnother}) async {
-    final product = _selectedProduct;
+    final product = _effectiveProduct();
     if (product == null) return;
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
@@ -65,9 +74,9 @@ class _AddSaleViewState extends ConsumerState<AddSaleView> {
           );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Sale of ${_selectedProduct!.name} saved')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Sale of ${product.name} saved')));
 
       if (addAnother) {
         _formKey.currentState?.reset();
@@ -95,9 +104,18 @@ class _AddSaleViewState extends ConsumerState<AddSaleView> {
     final colorScheme = context.colorScheme;
     final productsAsync = ref.watch(ownedProductsProvider);
     final products = productsAsync.value ?? const <Product>[];
+    final effectiveProduct = _effectiveProduct();
     final quantity = double.tryParse(_quantityController.text) ?? 0;
     final unitPrice = double.tryParse(_unitPriceController.text) ?? 0;
     final total = quantity * unitPrice;
+
+    if (effectiveProduct != null && _unitPriceController.text.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _unitPriceController.text.isNotEmpty) return;
+        _unitPriceController.text = effectiveProduct.sellingPrice
+            .toStringAsFixed(0);
+      });
+    }
 
     return AppScaffoldWidget(
       appBar: AppBar(
@@ -108,7 +126,7 @@ class _AddSaleViewState extends ConsumerState<AddSaleView> {
       ),
       bottomNavigationBar: _BottomActionDock(
         isSubmitting: _isSubmitting,
-        canSave: _selectedProduct != null,
+        canSave: effectiveProduct != null,
         onSave: () => _save(addAnother: false),
         onSaveAndAddAnother: () => _save(addAnother: true),
       ),
@@ -129,7 +147,7 @@ class _AddSaleViewState extends ConsumerState<AddSaleView> {
                   else
                     AppDropdownField<Product>(
                       labelText: 'Product',
-                      value: _selectedProduct ?? products.first,
+                      value: effectiveProduct ?? products.first,
                       items: products,
                       itemLabelBuilder: (p) => '${p.name} (${p.unitLabel})',
                       onChanged: _onProductChanged,

@@ -4,6 +4,7 @@ import 'package:pasal_sathi/src/core/config/textTheme/text_theme.dart';
 import 'package:pasal_sathi/src/core/constants/appSizes/app_sizes.dart';
 import 'package:pasal_sathi/src/modules/sales/model/sale_model.dart';
 import 'package:pasal_sathi/src/modules/shared/presenter/view/appCard/app_surface_card.dart';
+import 'package:pasal_sathi/src/modules/shared/presenter/view/appChip/app_pill_chip.dart';
 import 'package:pasal_sathi/src/modules/shared/presenter/view/appText/app_text.dart';
 
 /// One row in the Sales feed: a sequence badge, product + quantity, the
@@ -33,14 +34,15 @@ class SaleTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 32,
-                height: 32,
+                width: 40,
+                height: 48,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: colorScheme.surfaceContainerHighest,
                   shape: BoxShape.circle,
                 ),
                 child: AppText(
+                  overflow: TextOverflow.ellipsis,
                   '#$displayNumber',
                   style: AppTextStyles.label,
                   color: colorScheme.primary,
@@ -58,6 +60,13 @@ class SaleTile extends StatelessWidget {
                       color: colorScheme.onSurface,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    AppSpacing.h4,
+                    AppPillChip(
+                      label: sale.category,
+                      backgroundColor: colorScheme.surfaceContainerHighest,
+                      foregroundColor: colorScheme.onSurfaceVariant,
+                    ),
+                    AppSpacing.h4,
                     AppText(
                       '${_formatQuantity(sale.quantity)} ${sale.unitLabel} • ${_formatTime(sale.createdAt)}',
                       style: AppTextStyles.label,

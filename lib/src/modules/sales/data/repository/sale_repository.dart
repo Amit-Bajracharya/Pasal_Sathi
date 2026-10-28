@@ -46,7 +46,7 @@ class SaleRepository {
 
     final rows = await _client
         .from('sales')
-        .select('*, products(name, unit)')
+        .select('*, products(name, unit, category)')
         .eq('owner_id', ownerId)
         .order('created_at', ascending: false);
     return List<Map<String, dynamic>>.from(rows);

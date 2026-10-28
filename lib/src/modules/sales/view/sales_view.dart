@@ -10,10 +10,11 @@ import 'package:pasal_sathi/src/modules/sales/data/repository/sale_repository.da
 import 'package:pasal_sathi/src/modules/sales/model/sale_model.dart';
 import 'package:pasal_sathi/src/modules/sales/view/widgets/sale_tile.dart';
 import 'package:pasal_sathi/src/modules/shared/presenter/view/appText/app_text.dart';
+import 'package:pasal_sathi/src/modules/shared/presenter/view/appTextField/app_text_field.dart';
 import 'package:pasal_sathi/src/modules/shop/data/repository/shop_repository.dart';
 
-/// Sales tab: today's totals, a quick All/Today filter, and the recent
-/// sales feed itself.
+/// Sales tab: today's totals, search, category/date filters, and the
+/// recent sales feed itself.
 class SalesView extends ConsumerStatefulWidget {
   const SalesView({super.key});
 
@@ -21,8 +22,113 @@ class SalesView extends ConsumerStatefulWidget {
   ConsumerState<SalesView> createState() => _SalesViewState();
 }
 
+enum _DateFilter {
+  all('All'),
+  today('Today'),
+  yesterday('Yesterday'),
+  thisWeek('This Week'),
+  thisMonth('This Month'),
+  custom('Custom');
+
+  const _DateFilter(this.label);
+
+  final String label;
+}
+
 class _SalesViewState extends ConsumerState<SalesView> {
-  bool _todayOnly = false;
+  final _searchController = TextEditingController();
+  _DateFilter _dateFilter = _DateFilter.all;
+  DateTimeRange? _customRange;
+  String? _selectedCategory;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() => setState(() {});
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickCustomRange() async {
+    final now = DateTime.now();
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(now.year - 5),
+      lastDate: now,
+      initialDateRange:
+          _customRange ??
+          DateTimeRange(start: now.subtract(const Duration(days: 6)), end: now),
+    );
+    if (picked == null) return;
+    setState(() {
+      _customRange = picked;
+      _dateFilter = _DateFilter.custom;
+    });
+  }
+
+  bool _matchesDateFilter(Sale sale, DateTime now) =>
+      _matchesDateFilterFor(_dateFilter, sale, now);
+
+  bool _matchesDateFilterFor(_DateFilter filter, Sale sale, DateTime now) {
+    bool isSameDay(DateTime a, DateTime b) =>
+        a.year == b.year && a.month == b.month && a.day == b.day;
+    final day = DateTime(
+      sale.saleDate.year,
+      sale.saleDate.month,
+      sale.saleDate.day,
+    );
+
+    switch (filter) {
+      case _DateFilter.all:
+        return true;
+      case _DateFilter.today:
+        return isSameDay(sale.saleDate, now);
+      case _DateFilter.yesterday:
+        return isSameDay(sale.saleDate, now.subtract(const Duration(days: 1)));
+      case _DateFilter.thisWeek:
+        final startOfWeek = DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).subtract(Duration(days: now.weekday - 1));
+        return !day.isBefore(startOfWeek);
+      case _DateFilter.thisMonth:
+        return sale.saleDate.year == now.year &&
+            sale.saleDate.month == now.month;
+      case _DateFilter.custom:
+        if (_customRange == null) return true;
+        final start = _customRange!.start;
+        final end = _customRange!.end;
+        return !day.isBefore(DateTime(start.year, start.month, start.day)) &&
+            !day.isAfter(DateTime(end.year, end.month, end.day));
+    }
+  }
+
+  String _formatRangeLabel(DateTimeRange range) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    String format(DateTime d) => '${months[d.month - 1]} ${d.day}';
+    return '${format(range.start)} - ${format(range.end)}';
+  }
 
   Future<void> _newSale() async {
     await context.pushRoute(const AddSaleRoute());
@@ -94,7 +200,36 @@ class _SalesViewState extends ConsumerState<SalesView> {
         ? null
         : (((todayTotal - yesterdayTotal) / yesterdayTotal) * 100);
 
-    final visibleSales = _todayOnly ? todaySales : sales;
+    final categories = {for (final s in sales) s.category}.toList()..sort();
+
+    final query = _searchController.text.trim().toLowerCase();
+    final searchAndCategoryFiltered = sales.where((s) {
+      if (query.isNotEmpty &&
+          !s.productName.toLowerCase().contains(query) &&
+          !s.category.toLowerCase().contains(query)) {
+        return false;
+      }
+      if (_selectedCategory != null && s.category != _selectedCategory) {
+        return false;
+      }
+      return true;
+    }).toList();
+
+    final visibleSales = searchAndCategoryFiltered
+        .where((s) => _matchesDateFilter(s, now))
+        .toList();
+
+    final dateCounts = {
+      for (final filter in _DateFilter.values)
+        filter: searchAndCategoryFiltered
+            .where((s) => _matchesDateFilterFor(filter, s, now))
+            .length,
+    };
+
+    final hasActiveFilters =
+        query.isNotEmpty ||
+        _selectedCategory != null ||
+        _dateFilter != _DateFilter.all;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -116,21 +251,71 @@ class _SalesViewState extends ConsumerState<SalesView> {
           orderCount: todaySales.length,
         ),
         AppSpacing.h16,
-        Row(
-          children: [
-            _FilterChip(
-              label: 'All (${sales.length})',
-              selected: !_todayOnly,
-              onTap: () => setState(() => _todayOnly = false),
-            ),
-            AppSpacing.w8,
-            _FilterChip(
-              label: 'Today (${todaySales.length})',
-              selected: _todayOnly,
-              onTap: () => setState(() => _todayOnly = true),
-            ),
-          ],
+        AppTextField(
+          textEditingController: _searchController,
+          labelText: 'Search sales',
+          showLabel: false,
+          hintText: 'Search by product name or category...',
+          borderRadius: AppRadius.lg,
+          isDense: true,
+          bottomPadding: 0,
+          prefixIcon: Icon(Icons.search_rounded, color: colorScheme.outline),
+          suffixIcon: query.isEmpty
+              ? null
+              : IconButton(
+                  icon: Icon(Icons.close_rounded, color: colorScheme.outline),
+                  onPressed: () => setState(_searchController.clear),
+                ),
         ),
+        AppSpacing.h12,
+        SizedBox(
+          height: 36,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: _DateFilter.values.length,
+            separatorBuilder: (_, _) => AppSpacing.w8,
+            itemBuilder: (context, index) {
+              final filter = _DateFilter.values[index];
+              final isCustom = filter == _DateFilter.custom;
+              final label = isCustom && _customRange != null
+                  ? _formatRangeLabel(_customRange!)
+                  : '${filter.label} (${dateCounts[filter]})';
+              return _FilterChip(
+                label: label,
+                selected: _dateFilter == filter,
+                onTap: isCustom
+                    ? _pickCustomRange
+                    : () => setState(() => _dateFilter = filter),
+              );
+            },
+          ),
+        ),
+        if (categories.isNotEmpty) ...[
+          AppSpacing.h8,
+          SizedBox(
+            height: 36,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: categories.length + 1,
+              separatorBuilder: (_, _) => AppSpacing.w8,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return _FilterChip(
+                    label: 'All categories',
+                    selected: _selectedCategory == null,
+                    onTap: () => setState(() => _selectedCategory = null),
+                  );
+                }
+                final category = categories[index - 1];
+                return _FilterChip(
+                  label: category,
+                  selected: _selectedCategory == category,
+                  onTap: () => setState(() => _selectedCategory = category),
+                );
+              },
+            ),
+          ),
+        ],
         AppSpacing.h20,
         Row(
           children: [
@@ -140,11 +325,27 @@ class _SalesViewState extends ConsumerState<SalesView> {
               color: colorScheme.outline,
             ),
             const Spacer(),
-            AppText(
-              'Sorted by time',
-              style: AppTextStyles.label,
-              color: colorScheme.outline,
-            ),
+            if (hasActiveFilters)
+              InkWell(
+                onTap: () => setState(() {
+                  _searchController.clear();
+                  _selectedCategory = null;
+                  _dateFilter = _DateFilter.all;
+                  _customRange = null;
+                }),
+                child: AppText(
+                  'Clear filters',
+                  style: AppTextStyles.label,
+                  color: colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              )
+            else
+              AppText(
+                'Sorted by time',
+                style: AppTextStyles.label,
+                color: colorScheme.outline,
+              ),
           ],
         ),
         AppSpacing.h12,
@@ -186,7 +387,7 @@ class _SalesViewState extends ConsumerState<SalesView> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppDimens.p32),
             child: AppText(
-              'No sales recorded today yet.',
+              'No sales match your search or filters.',
               style: AppTextStyles.body,
               color: colorScheme.outline,
               textAlign: TextAlign.center,

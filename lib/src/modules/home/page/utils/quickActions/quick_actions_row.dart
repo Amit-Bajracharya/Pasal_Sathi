@@ -7,18 +7,14 @@ import 'package:pasal_sathi/src/modules/shared/presenter/view/appText/app_text.d
 /// Primary action row: New Sale (emphasized), Scan, Khata, and a trailing
 /// "more" square button.
 class QuickActionsRow extends StatelessWidget {
-  const QuickActionsRow({
+  const QuickActionsRow({super.key, 
     this.onNewSale,
-    this.onScan,
-    this.onKhata,
-    this.onMore,
-    super.key,
+    this.onNewProduct,
+  
   });
 
   final VoidCallback? onNewSale;
-  final VoidCallback? onScan;
-  final VoidCallback? onKhata;
-  final VoidCallback? onMore;
+  final VoidCallback? onNewProduct;
 
   @override
   Widget build(BuildContext context) {
@@ -36,26 +32,17 @@ class QuickActionsRow extends StatelessWidget {
         ),
         AppSpacing.w8,
         Expanded(
+          flex: 2,
           child: _ActionPill(
-            label: 'Scan',
-            icon: Icons.qr_code_scanner_rounded,
-            backgroundColor: AppColor.homeSurfaceContainer,
-            foregroundColor: AppColor.homeOnSurface,
-            onTap: onScan,
+            label: 'Add New Product',
+            icon: Icons.add_circle_rounded,
+            backgroundColor: AppColor.homePrimary,
+            foregroundColor: Colors.white,
+            onTap: onNewProduct,
           ),
         ),
-        AppSpacing.w8,
-        Expanded(
-          child: _ActionPill(
-            label: 'Khata',
-            icon: Icons.menu_book_rounded,
-            backgroundColor: AppColor.homeSurfaceContainer,
-            foregroundColor: AppColor.homeOnSurface,
-            onTap: onKhata,
-          ),
-        ),
-        AppSpacing.w8,
-        _SquareIconButton(icon: Icons.add_rounded, onTap: onMore),
+       
+
       ],
     );
   }
